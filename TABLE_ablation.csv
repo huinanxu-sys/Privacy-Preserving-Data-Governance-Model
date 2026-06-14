@@ -1,0 +1,6 @@
+Configuration,AUC_mean,AUC_SE,Delta_from_Full
+Model B (Full),0.763232,0.002906,0.0
+B − Trade Momentum (M),0.760681,0.002886,-0.002551
+B − Buyer HHI (VI),0.7609,0.002782,-0.002332
+B − Anomaly Detection,0.762316,0.0029,-0.000915
+B − All Three Engines,0.754065,0.002732,-0.009167

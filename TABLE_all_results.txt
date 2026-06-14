@@ -1,0 +1,78 @@
+==============================================================================================================
+HONEST MONTE CARLO SIMULATION RESULTS — v3 Mentor Architecture (Transaction-Level DGP)
+==============================================================================================================
+Seed: 20230101 | Firms: 5000 | Tx Months: 12 | Runs: 20 | Folds: 5 | λ₀ = 4.0
+
+DESIGN: Raw micro-transactions generated FIRST with embedded risk signal.
+Engineered features (M, VI, Score_anomaly) ALGORITHMICALLY DERIVED from raw data (~90% derivation).
+Model C raw features (12 monthly volume columns) contain REAL latent signal — H2 is empirical, not tautological.
+
+==============================================================================================================
+TABLE 1. Variable Definitions, Feature Groups, and Privacy Sensitivity Weights (w_f)
+==============================================================================================================
+Feature Name                   Feature Group          Symbol            w_f  Privacy Tier  
+------------------------------------------------------------------------------------------
+Current Ratio                  Financial Baseline     CR_i             0.05  Low           
+Debt-to-Equity                 Financial Baseline     DE_i             0.05  Low           
+Return on Assets               Financial Baseline     ROA_i            0.05  Low           
+Regional Regulatory Vol.       Macro Public           RRV              0.05  Low           
+Industry Growth Rate           Macro Public           IG               0.05  Low           
+Net Trade Balance              Macro Public           TB               0.05  Low           
+Trade Momentum Engine          Governed Engineered    M_i              0.20  Medium        
+Buyer Concentration HHI        Governed Engineered    VI_i             0.20  Medium        
+Anomaly Z-score Element        Governed Engineered    Score_i          0.20  Medium        
+Monthly Transaction Volume     Raw Micro-transaction  Raw_Vol_M1..M12   1.00  High          
+
+==============================================================================================================
+TABLE 2. Predictive Performance of the Four Nested Model Variants
+==============================================================================================================
+Model        AUC (Mean ± SE)        95% CI                            Cost  Net Utility
+------------------------------------------------------------------------------------------
+Baseline     0.7421 ± 0.0029       [0.7364, 0.7478]          0.0122         0.7299
+Model A      0.7541 ± 0.0027       [0.7487, 0.7594]          0.0149         0.7391
+Model B      0.7632 ± 0.0029       [0.7575, 0.7689]          0.0495         0.7137
+Model C      0.7778 ± 0.0026       [0.7727, 0.7829]          0.5460         0.2318
+
+  Significance tests (paired t-test, 20 runs):
+    A vs Baseline:  Δ = +0.0120,  t = 9.9836,  p = 5.40e-09
+    B vs Baseline:  Δ = +0.0211,  t = 13.9510,  p = 1.96e-11
+    B vs Model A:   Δ = +0.0092,  t = 10.3892,  p = 2.84e-09
+    C vs Model B:   Δ = +0.0146,  t = 12.2762,  p = 1.76e-10
+
+==============================================================================================================
+TABLE 3. Summary of Hypotheses, Empirical Tests, and Results
+==============================================================================================================
+  Hypothesis                                         Result                                   Status
+  -------------------------------------------------- ---------------------------------------- ----------
+  H1: Signal Granularity & Predictive Efficacy       B vs A: p = 2.8e-09                      Supported***
+  H2: Net Utility Collapse (Negative Net Marginal Return)        C vs B: Δ = 0.0146, p = 1.76e-10; Cost: 0.0495→0.5460 Supported***
+  H3: Optimal Governance Equilibrium                             Peak depends on λ: C wins [0.5, 1.0]; A wins [2, 8] Supported***
+
+==============================================================================================================
+TABLE 4. Ablation Study of Domain-Logic Engines (Leave-One-Out)
+==============================================================================================================
+Configuration                  AUC (Mean ± SE)         Δ from Full
+----------------------------------------------------------------------
+Model B (Full)                 0.7632 ± 0.0029            +0.0000   Reference (all three engines active)
+B − Trade Momentum (M)         0.7607 ± 0.0029            -0.0026   Loss of dynamic temporal early-warning signal
+B − Buyer HHI (VI)             0.7609 ± 0.0028            -0.0023   Loss of structural concentration collapse detection
+B − Anomaly Detection          0.7623 ± 0.0029            -0.0009   Loss of cross-sectional trade-fraud filter
+B − All Three Engines          0.7541 ± 0.0027            -0.0092   Direct collapse back to Model A performance
+
+==============================================================================================================
+TABLE 5. Net Utility Sensitivities Across Varied Governance Cost Weights (λ)
+==============================================================================================================
+     λ  Baseline NetU   Model A NetU   Model B NetU   Model C NetU Peak
+--------------------------------------------------------------------------------
+   0.5         0.7318         0.7436         0.7510         0.7613   Model C
+   1.0         0.7316         0.7430         0.7483         0.7506   Model C
+   2.0         0.7310         0.7419         0.7410         0.7039   Model A
+   3.0         0.7305         0.7406         0.7300         0.5770   Model A
+4.0 (baseline)         0.7299         0.7391         0.7137         0.2318   Model A
+   5.0         0.7293         0.7376         0.6893        -0.7063   Model A
+   6.0         0.7286         0.7358         0.6530        -3.2565   Model A
+   8.0         0.7272         0.7318         0.5179       -29.0318   Model A
+
+==============================================================================================================
+Total computation: 20 repeats × 5 folds × (4 models + 5 ablations) = 900 CV fits
+==============================================================================================================
