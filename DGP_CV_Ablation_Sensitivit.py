@@ -239,9 +239,9 @@ with open('honest_results.json', 'w') as f:
     json.dump(output, f, indent=2)
 print("\nSaved: honest_results.json")
 
-# Print summary table for D10
+# Print summary table for D11
 print("\n" + "="*70)
-print("VALUES FOR D10.docx")
+print("VALUES FOR D11.docx")
 print("="*70)
 for name in ['Baseline', 'Model A', 'Model B', 'Model C']:
     r = results[name]

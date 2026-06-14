@@ -41,7 +41,7 @@ COST_TH     = np.array([0.0000, 0.0122, 0.0149, 0.0495, 0.5460, 0.9000])
 X_NEU       = X_TH.copy()
 NEU_ANCHORS = AUC_TH - COST_TH   # = 0.5, 0.729, 0.735, 0.756, 0.258, -0.096
 
-LAMBDA = 1.0  # governance penalty weight (matches paper's NetU formula)
+LAMBDA = 4.0  # governance penalty weight (matches DGP code's LAMBDA_DEFAULT = 4.0)
 
 x = np.linspace(0, 10, 500)
 
@@ -98,7 +98,7 @@ peak_x, peak_y = x[peak_idx], net_utility[peak_idx]
 # SEs grow modestly with x (more granular data -> more noise)
 se_gain = 0.004 + 0.012 * model_gain
 se_cost = 0.003 + 0.020 * gov_cost
-se_net  = np.sqrt(se_gain ** 2 + (LAMBDA * se_cost) ** 2)
+se_net  = np.sqrt(se_gain ** 2 + se_cost ** 2)  # cost already embeds λ, no extra scaling
 
 # -----------------------------------------------------------------
 # 4. Plot
@@ -127,10 +127,10 @@ cost_line, = ax_right.plot(x, gov_cost,
 
 # 4c. Mark the empirical model points on the net-utility curve
 def emp_anchor(x_pos):
-    """Empirical realization: AUC from MC, Cost from MC, NetU derived."""
+    """Empirical realization: AUC from MC, Cost from MC (already embeds λ), NetU = AUC - Cost."""
     a_val = float(np.interp(x_pos, X_EMP, AUC_EMP))
     c_val = float(np.interp(x_pos, X_EMP, COST_EMP))
-    n_val = a_val - LAMBDA * c_val
+    n_val = a_val - c_val  # COST_EMP already embeds λ=4.0, do NOT multiply again
     return a_val, c_val, n_val
 
 base_auc, base_cost, base_netu = emp_anchor(X_EMP[0])
@@ -179,7 +179,7 @@ ax_left.annotate('Model A\nFinancial + Macro\nAUC=0.750',
                            ec='gray', alpha=0.9))
 
 ax_left.annotate('Model B (Proposed Artifact)\nOptimal Governance Equilibrium\n'
-                 f'AUC=0.805, Cost=0.050, \u03bb=1.0',
+                 f'AUC=0.805, Cost=0.050, \u03bb=4.0',
                  xy=(X_EMP[2], b_netu), xytext=(3.6, 0.92),
                  arrowprops=dict(facecolor='black', arrowstyle='->', lw=1.2),
                  fontsize=11, fontweight='bold', ha='center',
